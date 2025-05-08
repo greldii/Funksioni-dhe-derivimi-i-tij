@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<link href='https://Funksionet dhe derivimi.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+<html lang="en">
+<title>
+Funksionet dhe derivimi i tyre
+</title>
+<head>
+  <meta charset="UTF-8">
+  <title>Derivues & Grafik</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f4;
+    }
+    input, select, button {
+      font-size: 16px;
+      margin: 10px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    .output {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    canvas {
+      background: #fff;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Derivues Funksionesh + Grafik</h1>
+
+  <label>Shkruaj funksionin (p.sh. x^3 + 2*x):</label>
+  <input type="text" id="funksioni" placeholder="p.sh. x^2 + 3*x">
+
+  <label>Zgjidh rendin e derivimit:</label>
+  <select id="rendi">
+    <option value="1">Derivimi i parë</option>
+    <option value="2">Derivimi i dytë</option>
+  </select>
+
+  <button onclick="derivo()">Derivo dhe vizato</button>
+
+  <div class="output">
+    <div id="rezultati"></div>
+    <canvas id="grafiku" width="600" height="300"></canvas>
+  </div>
+
+  <script>
+    function derivo() {
+      const funksioni = document.getElementById('funksioni').value;
+      const rendi = parseInt(document.getElementById('rendi').value);
+      let derivat = funksioni;
+      let node;
+
+      try {
+        for (let i = 0; i < rendi; i++) {
+          node = math.derivative(derivat, 'x');
+          derivat = node.toString();
+        }
+
+        const etiketa = rendi === 1 ? "f′(x)" : "f″(x)";
+        const funksioniFormatted = formatReadable(funksioni);
+        const derivatFormatted = formatReadable(derivat);
+
+        document.getElementById('rezultati').innerHTML =
+          `<strong>Funksioni:</strong> f(x) = ${funksioniFormatted}<br>` +
+          `<strong>Derivati:</strong> ${etiketa} = ${derivatFormatted}`;
+
+        vizatoGrafikun(funksioni, derivat);
+
+      } catch (err) {
+        document.getElementById('rezultati').innerText = 'Gabim në funksion. Kontrollo shkrimin!';
+      }
+    }
+
+    function formatReadable(expr) {
+      return expr
+        .replace(/\s*\*\s*/g, '')        // hiq yjet
+        .replace(/\^2/g, '²')            // x^2 -> x²
+        .replace(/\^3/g, '³')            // x^3 -> x³
+        .replace(/\^4/g, '⁴')            // x^4 -> x⁴
+        .replace(/\^5/g, '⁵')            // x^5 -> x⁵
+        .replace(/\^6/g, '⁶')            // x^6 -> x⁶
+        .replace(/\^7/g, '⁷')            // x^7 -> x⁷
+        .replace(/\^8/g, '⁸')            // x^8 -> x⁸
+        .replace(/\^9/g, '⁹')            // x^9 -> x⁹
+        .replace(/\^1/g, '')             // x^1 -> x
+        .replace(/([0-9])\s*([a-zA-Z])/g, '$1$2') // 2 x → 2x
+        .replace(/\s+/g, ' ')            // hapësira të tepërta
+        .trim();
+    }
+
+    let chart;
+
+    function vizatoGrafikun(funksioni, derivat) {
+      const x_vals = math.range(-10, 10, 0.5).toArray();
+      const f_vals = x_vals.map(x => math.evaluate(funksioni, {x}));
+      const df_vals = x_vals.map(x => math.evaluate(derivat, {x}));
+
+      const ctx = document.getElementById('grafiku').getContext('2d');
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: x_vals,
+          datasets: [
+            {
+              label: 'f(x)',
+              data: f_vals,
+              borderColor: 'blue',
+              fill: false
+            },
+            {
+              label: 'Derivati',
+              data: df_vals,
+              borderColor: 'red',
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: 'x' } },
+            y: { title: { display: true, text: 'vlera' } }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
