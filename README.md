@@ -1,0 +1,1 @@
+# Funksioni-dhe-derivimi-i-tij
